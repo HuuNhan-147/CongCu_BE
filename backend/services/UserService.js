@@ -7,4 +7,4 @@ const createUser = () => {
   });
 };
 
-export default createUser;
+export default createUser; //xuất create user làm giá trị chính 
