@@ -30,6 +30,8 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "redis": "^5.9.0",
-    "string-similarity": "^4.0.4"
+    "string-similarity": "^4.0.4",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
   }
 }

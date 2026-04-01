@@ -7,8 +7,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     isAdmin: { type: Boolean, required: true, default: false },
     phone: { type: String, required: true },
-    resetPasswordToken: { type: String }, // Token reset mật khẩu
-    resetPasswordExpires: { type: Date }, // Thời gian hết hạn
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   {
     timestamps: true,
@@ -16,4 +16,4 @@ const userSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model("User", userSchema);
-export default User; // ✅ Dùng `export default`
+export default User;
