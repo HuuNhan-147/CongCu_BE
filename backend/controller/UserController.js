@@ -4,19 +4,17 @@ import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendEmail.js";
 import Order from "../models/OrderModel.js";
 import crypto from "crypto";
+
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, phone, isAdmin } = req.body;
 
-    // Kiểm tra email đã tồn tại chưa
     if (await User.findOne({ email })) {
       return res.status(400).json({ message: "Email đã tồn tại!" });
     }
 
-    // Băm mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Tạo người dùng mới
     const newUser = new User({
       name,
       email,
@@ -27,7 +25,6 @@ export const createUser = async (req, res) => {
 
     await newUser.save();
 
-    // Tạo token
     const accessToken = jwt.sign(
       { id: newUser._id, email: newUser.email, isAdmin: newUser.isAdmin },
       process.env.ACCESS_TOKEN_SECRET,
@@ -39,7 +36,6 @@ export const createUser = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // Lưu refreshToken vào cookie HTTP-only
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -49,7 +45,7 @@ export const createUser = async (req, res) => {
 
     res.status(201).json({
       message: "Tạo tài khoản thành công!",
-      accessToken, // Chỉ trả về accessToken
+      accessToken,
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -62,7 +58,7 @@ export const createUser = async (req, res) => {
     res.status(500).json({ message: "Lỗi server!", error: error.message });
   }
 };
-// 🔹 2. Đăng nhập người dùng
+
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,12 +67,10 @@ export const loginUser = async (req, res) => {
     if (!user)
       return res.status(400).json({ message: "Tài khoản không tồn tại!" });
 
-    // Kiểm tra mật khẩu
     if (!(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: "Mật khẩu không đúng!" });
     }
 
-    // Tạo token
     const accessToken = jwt.sign(
       { id: user._id, email: user.email, isAdmin: user.isAdmin },
       process.env.ACCESS_TOKEN_SECRET,
@@ -88,7 +82,6 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // Lưu refreshToken vào cookie HTTP-only
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -112,16 +105,12 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// 🔹 3. Lấy thông tin người dùng
 export const getUserProfile = async (req, res) => {
   try {
-    // Kiểm tra xem req.userId có tồn tại không
     if (!req.user) {
       return res.status(401).json({ message: "Không có quyền truy cập!" });
     }
 
-    // Tìm người dùng theo ID, loại bỏ password và token trong kết quả trả về
-    // Chỉ lấy các trường cần thiết
     const user = await User.findById(req.user).select(
       "-password -access_token -refresh_token -createdAt -updatedAt"
     );
@@ -140,7 +129,6 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// 🔹 4. Cập nhật thông tin người dùng
 export const updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user);
@@ -165,7 +153,6 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// 🔹 5. Xóa người dùng (Admin)
 export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -184,7 +171,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// 🔹 6. Cập nhật thông tin người dùng (Admin)
 export const updateUserByAdmin = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -209,7 +195,6 @@ export const updateUserByAdmin = async (req, res) => {
   }
 };
 
-// 🔹 7. Lấy danh sách tất cả người dùng (Admin)
 export const getAllUsers = async (req, res) => {
   try {
     if (!req.user || !req.user.isAdmin) {
@@ -228,6 +213,7 @@ export const getAllUsers = async (req, res) => {
     });
   }
 };
+
 export const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id }).populate(
@@ -252,7 +238,6 @@ export const forgotPassword = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: "Không tìm thấy email!" });
 
-    // Tạo token reset password
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
@@ -260,7 +245,7 @@ export const forgotPassword = async (req, res) => {
       .digest("hex");
 
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 phút
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
     const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
@@ -277,7 +262,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// ✅ 2. Hiển thị trang nhập mật khẩu mới (Chỉ để test)
 export const resetPasswordPage = (req, res) => {
   res.send(`<h2>Nhập mật khẩu mới</h2>
             <form action="/api/auth/reset-password/${req.params.token}" method="POST">
@@ -286,7 +270,6 @@ export const resetPasswordPage = (req, res) => {
             </form>`);
 };
 
-// ✅ 3. Đặt lại mật khẩu
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -304,7 +287,6 @@ export const resetPassword = async (req, res) => {
         .status(400)
         .json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
 
-    // Cập nhật mật khẩu
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -320,31 +302,26 @@ export const updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
 
-    // ✅ Kiểm tra user đã đăng nhập chưa
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Bạn chưa đăng nhập!" });
     }
 
-    // ✅ Lấy thông tin user từ database
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại!" });
     }
 
-    // ✅ Kiểm tra mật khẩu cũ
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Mật khẩu cũ không đúng!" });
     }
 
-    // ✅ Kiểm tra mật khẩu mới có trùng mật khẩu cũ không
     if (await bcrypt.compare(newPassword, user.password)) {
       return res
         .status(400)
         .json({ message: "Mật khẩu mới không được trùng với mật khẩu cũ!" });
     }
 
-    // ✅ Hash mật khẩu mới và cập nhật
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
@@ -355,8 +332,6 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-//netstat -ano | findstr :5000
-//taskkill /PID 9172 /F
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
@@ -377,7 +352,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Tìm kiếm người dùng theo tên, email hoặc số điện thoại
 export const searchUsers = async (req, res) => {
   try {
     const { query } = req.query;
@@ -397,7 +371,7 @@ export const searchUsers = async (req, res) => {
 
     res.status(200).json(users);
   } catch (error) {
-    console.error(error); // Thêm log lỗi vào console để debug
+    console.error(error);
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
