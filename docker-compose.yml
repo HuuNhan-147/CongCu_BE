@@ -1,0 +1,106 @@
+services:
+  # ============================================================
+  # Backend - Node.js
+  # ============================================================
+  backend:
+    build:
+      context: ./backend   # Thư mục chứa source backend
+      dockerfile: Dockerfile  # File build image
+
+    container_name: congcu_backend
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production   # Chạy mode production
+      PORT: 5000             # Port backend
+
+      # MongoDB (lấy từ file .env)
+      MONGO_URI: ${MONGO_URI}
+
+      # JWT
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+
+      # Redis (gọi service redis bằng tên container)
+      REDIS_URL: redis://redis:6379
+
+      # Email
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
+      # AI
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+
+      # VNPay
+      VNP_TMNCODE: ${VNP_TMNCODE}
+      VNP_HASH_SECRET: ${VNP_HASH_SECRET}
+      VNP_URL: ${VNP_URL}
+      VNP_RETURN_URL: ${VNP_RETURN_URL}
+      VNP_API: ${VNP_API}
+
+      # Momo
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY}
+      MOMO_API_ENDPOINT: ${MOMO_API_ENDPOINT}
+
+    ports:
+      - "5000:5000"   # Map port máy → container
+
+    networks:
+      - congcu_network
+
+    # Check backend sống hay chết
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ============================================================
+  # Frontend - React + Nginx
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+      # Truyền biến môi trường lúc build React
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
+        # Nếu không có biến → dùng default
+
+    container_name: congcu_frontend
+    restart: unless-stopped
+
+    # Chỉ chạy khi backend OK
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    ports:
+      - "80:80"   # Web chạy port 80
+
+    networks:
+      - congcu_network
+
+    # Check frontend
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+# ============================================================
+# Network - để các container nói chuyện với nhau
+# ============================================================
+networks:
+  congcu_network:
+    driver: bridge   # Network mặc định của Docker

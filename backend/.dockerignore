@@ -1,0 +1,41 @@
+# ============================================================
+# .dockerignore cho Backend
+# ============================================================
+
+# Node modules (sẽ được cài lại trong container)
+node_modules/
+
+# Environment files (inject lúc runtime)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist/
+build/
+
+# Dev tools
+.git/
+.gitignore
+*.md
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.js
+*.spec.js
+__tests__/
+coverage/

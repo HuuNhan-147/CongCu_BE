@@ -1,0 +1,42 @@
+# ============================================================
+# .dockerignore cho Frontend
+# ============================================================
+
+# Node modules
+node_modules/
+
+# Build output (sẽ được tạo trong container)
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dev tools
+.git/
+.gitignore
+*.md
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.js
+*.spec.js
+coverage/
+
+# Nginx config vẫn cần (đừng ignore)
+# nginx.conf
