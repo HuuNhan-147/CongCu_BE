@@ -30,7 +30,7 @@ const ProductDetail: React.FC = () => {
       try {
         const data = await fetchCategory();
         setCategories(data);
-      } catch (err) {
+      } catch (err: any) {
         setError("Không thể tải danh mục.");
       }
     };
@@ -41,7 +41,7 @@ const ProductDetail: React.FC = () => {
           ...passedProduct,
           image: passedProduct.image.startsWith("http")
             ? passedProduct.image
-            : `http://localhost:5000${passedProduct.image}`,
+            : `https://congcu-be-backend-1-0.onrender.com${passedProduct.image}`,
         };
 
         console.log("✅ Sản phẩm được truyền từ ProductCard:", updatedProduct);
@@ -57,7 +57,7 @@ const ProductDetail: React.FC = () => {
         }
         const data = await fetchProductDetails(id);
         setProduct(data);
-      } catch (err) {
+      } catch (err: any) {
         setError("Không thể tải thông tin sản phẩm.");
       } finally {
         setLoading(false);
@@ -74,10 +74,10 @@ const ProductDetail: React.FC = () => {
       setReviews(reviewsData);
       setShowReviews(true);
       const userHasReviewed = reviewsData.some(
-        (review) => review.user === user?.name
+        (review: any) => review.user === user?.name
       );
       setHasReviewed(userHasReviewed);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Lỗi khi lấy danh sách đánh giá:", err);
       alert("Đã có lỗi xảy ra khi lấy danh sách đánh giá.");
     }
@@ -108,7 +108,7 @@ const ProductDetail: React.FC = () => {
         alert("Đánh giá của bạn đã được gửi thành công!");
         await handleGetReviews();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Lỗi khi gửi đánh giá:", err);
       if (err.response && err.response.status === 400) {
         alert("Bạn đã đánh giá sản phẩm này rồi.");

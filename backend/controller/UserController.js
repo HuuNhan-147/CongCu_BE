@@ -248,7 +248,7 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetURL = `https://congcu-be-frontend-1-0.onrender.com/reset-password/${resetToken}`;
 
     await sendEmail(
       user.email,

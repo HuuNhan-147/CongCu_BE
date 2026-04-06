@@ -320,7 +320,7 @@ const CreateOrderPage: React.FC = () => {
                           src={
     product.image?.startsWith("http://") || product.image?.startsWith("https://")
       ? product.image
-      : `http://localhost:5000${product.image}`
+      : `https://congcu-be-backend-1-0.onrender.com${product.image}`
   }
                         alt={product.name}
                         className="w-16 h-16 rounded-md object-cover"
