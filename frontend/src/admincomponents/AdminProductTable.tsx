@@ -123,7 +123,7 @@ const AdminProductTable: React.FC<AdminProductTableProps> = ({
             <tr key={product._id}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <img
-                  src={product.image ? `https://congcu-be-backend-1-0.onrender.com${product.image}` : "/images/no-image.png"}
+                  src={product.image ? product.image : "/images/no-image.png"}
                   alt={product.name}
                   className="w-16 h-16 object-contain rounded"
                 />

@@ -317,11 +317,7 @@ const CreateOrderPage: React.FC = () => {
                   <div className="flex items-start py-3">
                     <div className="flex-shrink-0">
                       <img
-                          src={
-    product.image?.startsWith("http://") || product.image?.startsWith("https://")
-      ? product.image
-      : `https://congcu-be-backend-1-0.onrender.com${product.image}`
-  }
+                          src={product.image || "/images/no-image.png"}
                         alt={product.name}
                         className="w-16 h-16 rounded-md object-cover"
                       />
@@ -346,7 +342,7 @@ const CreateOrderPage: React.FC = () => {
                     >
                       <div className="flex-shrink-0">
                         <img
-                          src={`http://localhost:5000${prod.image}`}
+                          src={prod.image || "/images/no-image.png"}
                           alt={prod.name}
                           className="w-16 h-16 rounded-md object-cover"
                         />

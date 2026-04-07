@@ -53,7 +53,7 @@ const AdminProduct: React.FC<ProductCardProps> = ({ product, onDelete }) => {
   };
 
   const imageUrl = product.image
-    ? `https://congcu-be-backend-1-0.onrender.com${product.image}`
+    ? product.image
     : "/images/no-image.png";
 
   const renderStars = () => {

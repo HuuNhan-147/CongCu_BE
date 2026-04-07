@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
                 className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 <img
-                  src={`https://congcu-be-backend-1-0.onrender.com${product.image}`}
+                  src={product.image || "/images/no-image.png"}
                   alt={product.name}
                   className="w-16 h-16 object-cover rounded-lg"
                 />

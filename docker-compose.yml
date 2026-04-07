@@ -1,22 +1,55 @@
+# =========================
+# Định nghĩa các service trong hệ thống
+# =========================
 services:
 
+  # =========================
+  # Backend Service (Node.js API)
+  # =========================
   backend:
-    build: ./backend
-    container_name: congcu_backend
-    ports:
-      - "5000:5000"
-    env_file:
-      - ./backend/.env
-    restart: unless-stopped
+    build: ./backend              # Build image từ thư mục backend (chứa Dockerfile)
+    container_name: congcu_backend  # Đặt tên container để dễ quản lý
 
+    ports:
+      - "5000:5000"              # Map port: máy host 5000 → container 5000
+
+    env_file:
+      - ./backend/.env           # Load biến môi trường từ file .env (DB, JWT, API key...)
+
+    restart: unless-stopped      # Tự động restart container nếu bị crash (trừ khi bị stop thủ công)
+
+
+  # =========================
+  # Frontend Service (React + Vite + Nginx)
+  # =========================
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend        # Thư mục chứa source frontend
       args:
-        VITE_API_URL: http://localhost:5000/api
-    container_name: congcu_frontend
+        VITE_API_URL: http://localhost:5000/api  
+        # Truyền biến môi trường vào quá trình build (frontend sẽ gọi API backend)
+
+    container_name: congcu_frontend  # Tên container frontend
+
     ports:
-      - "80:80"
+      - "80:80"                  # Map port: truy cập web qua http://localhost
+
     depends_on:
-      - backend
-    restart: unless-stopped
+      - backend                  # Đảm bảo backend chạy trước frontend
+
+    restart: unless-stopped      # Tự restart nếu có lỗi
+
+
+# =========================
+# Tổng kết kiến trúc
+# =========================
+# - Hệ thống gồm 2 service:
+#   + Backend: cung cấp API (port 5000)
+#   + Frontend: giao diện người dùng (port 80)
+#
+# - Frontend gọi API qua:
+#   http://localhost:5000/api
+#
+# - Docker Compose giúp:
+#   + Chạy toàn bộ hệ thống bằng 1 lệnh: docker-compose up
+#   + Quản lý container dễ dàng

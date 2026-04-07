@@ -39,9 +39,7 @@ const ProductDetail: React.FC = () => {
       if (passedProduct) {
         const updatedProduct = {
           ...passedProduct,
-          image: passedProduct.image.startsWith("http")
-            ? passedProduct.image
-            : `https://congcu-be-backend-1-0.onrender.com${passedProduct.image}`,
+          image: passedProduct.image,
         };
 
         console.log("✅ Sản phẩm được truyền từ ProductCard:", updatedProduct);

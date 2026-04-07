@@ -50,24 +50,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   const handleImageClick = () => {
-    // Loại bỏ http://localhost:5000 nếu có
-    const cleanedImage =
-      product.image?.replace("https://congcu-be-backend-1-0.onrender.com", "") || product.image;
-
-    // Tạo bản sao của product với image đã xử lý
-    const productWithoutBaseUrl = {
-      ...product,
-      image: cleanedImage,
-    };
-
-    // Điều hướng sang trang chi tiết, truyền product (đã làm sạch URL ảnh)
+    // Điều hướng sang trang chi tiết
     navigate(`/products/${product._id}`, {
-      state: { product: productWithoutBaseUrl },
+      state: { product: product },
     });
   };
 
   const imageUrl = product.image
-    ? `https://congcu-be-backend-1-0.onrender.com${product.image}`
+    ? product.image
     : "/images/no-image.png";
 
   const renderStars = () => {
