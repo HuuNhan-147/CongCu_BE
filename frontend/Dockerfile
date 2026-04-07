@@ -1,40 +1,73 @@
 # =========================
 # Stage 1: Build React App
+# Sử dụng Node.js bản nhẹ (alpine) để build project React (Vite)
 # =========================
-FROM node:20-alpine AS builder   # Dùng Node.js bản nhẹ (alpine) để build
+FROM node:20-alpine AS builder
 
-WORKDIR /app                     # Tạo thư mục làm việc trong container
+# =========================
+# Thiết lập thư mục làm việc
+# Tạo thư mục /app trong container
+# =========================
+WORKDIR /app
 
-# Copy file package để cài dependencies (tận dụng cache Docker)
+# =========================
+# Copy file cấu hình dependencies
+# Copy package.json và package-lock.json để tận dụng cache Docker
+# =========================
 COPY package*.json ./
 
-RUN npm install                 # Cài tất cả thư viện (bao gồm devDependencies để build)
+# =========================
+# Cài đặt dependencies
+# Cài toàn bộ thư viện (bao gồm devDependencies để phục vụ build)
+# =========================
+RUN npm install
 
+# =========================
+# Copy source code
 # Copy toàn bộ source code vào container
+# =========================
 COPY . .
 
-# Khai báo biến môi trường cho frontend (API backend)
-# Vite sẽ đọc biến này khi build
+# =========================
+# Khai báo biến môi trường cho frontend
+# Vite sẽ sử dụng biến này khi build để gọi API backend
+# =========================
 ARG VITE_API_URL=https://congcu-be-backend-2-0.onrender.com/api
 ENV VITE_API_URL=$VITE_API_URL
 
-# Build project React (Vite) → tạo thư mục /dist
+# =========================
+# Build ứng dụng React
+# Tạo thư mục /dist chứa file tĩnh sau khi build
+# =========================
 RUN npm run build
 
 
 # =========================
 # Stage 2: Serve bằng Nginx
+# Sử dụng Nginx bản nhẹ để phục vụ web tĩnh
 # =========================
-FROM nginx:alpine               # Dùng Nginx bản nhẹ để serve web tĩnh
+FROM nginx:alpine
 
-# Copy file build từ stage builder sang Nginx
+# =========================
+# Copy file build từ stage builder
+# Đưa toàn bộ file trong /dist vào thư mục public của Nginx
+# =========================
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy file config Nginx (để cấu hình routing, SPA, API proxy nếu có)
+# =========================
+# Copy cấu hình Nginx
+# Dùng để cấu hình routing (SPA), rewrite, hoặc proxy API
+# =========================
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Mở port 80 để truy cập web
+# =========================
+# Mở port
+# Web sẽ chạy trên port 80
+# =========================
 EXPOSE 80
 
-# Chạy Nginx ở foreground (bắt buộc để container không bị tắt)
+# =========================
+# Chạy Nginx
+# Chạy ở chế độ foreground để container không bị dừng
+# =========================
 CMD ["nginx", "-g", "daemon off;"]
